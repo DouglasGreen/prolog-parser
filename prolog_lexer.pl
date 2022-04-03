@@ -18,6 +18,7 @@
 
 %! tokens(-Tokens:list) is semidet
 % Match a list of all tokens excluding whitespace.
+
 tokens([Token|Tokens]) -->
     token(Token),
     tokens(Tokens).
@@ -30,6 +31,7 @@ tokens([]) -->
 
 %! base_digit(-Digit:code, -Base:int) is semidet
 % Match an digit character code in a base from 2 to 10.
+
 base_digit(Digit, Base) -->
     [Digit],
     {
@@ -39,6 +41,7 @@ base_digit(Digit, Base) -->
 
 %! chars(-Codes:codes, -Type:atom|compound) is semidet
 % Match a list of character codes.
+
 chars([Code|Codes], Type) -->
     char(Code, Type),
     chars(Codes, Type).
