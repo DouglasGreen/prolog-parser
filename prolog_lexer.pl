@@ -31,7 +31,6 @@ tokens([]) -->
 
 %! base_digit(-Digit:code, -Base:int) is semidet
 % Match an digit character code in a base from 2 to 10.
-
 base_digit(Digit, Base) -->
     [Digit],
     {
@@ -39,9 +38,22 @@ base_digit(Digit, Base) -->
         Weight < Base
     }.
 
+%! base_digits(-Digits:codes) is semidet
+% Match a list of one or more digit codes in a base from 2 to 10.
+base_digits([Digit|Digits], Base) -->
+    base_digit(Digit, Base),
+    base_digits(Digits, Base).
+base_digits([Digit], Base) -->
+    base_digit(Digit, Base).
+
+%! char(-Code:code) is semidet
+% Match a single character code.
+char(Code, Type) -->
+    [Code],
+    {char_type(Code, Type)}.
+
 %! chars(-Codes:codes, -Type:atom|compound) is semidet
 % Match a list of character codes.
-
 chars([Code|Codes], Type) -->
     char(Code, Type),
     chars(Codes, Type).
@@ -77,6 +89,20 @@ float_digits(FloatDigits) -->
         char_code('.', Point),
         flatten([WholeDigits, Point, FracDigits, ExpDigits], FloatDigits)
     }.
+
+%! hex_char(-Code:code) is semidet
+% Match a hexadecimal character code.
+hex_char(Code) -->
+    [Code],
+    {char_type(Code, xdigit(_))}.
+
+%! hex_chars(-Codes:codes) is semidet
+% Match and lowercase a list of one or more hexadecimal character codes.
+hex_chars([Code|Codes]) -->
+    hex_char(Code),
+    hex_chars(Codes).
+hex_chars([Code]) -->
+    hex_char(Code).
 
 %! quoted_chars(-Quote:atom, -Codes:codes) is semidet
 % Match a list of character codes up to a the end of a quoted string.
@@ -232,32 +258,3 @@ token(upper(Upper)) -->
     chars(Codes, csym),
     !,
     {atom_chars(Upper, [Code|Codes])}.
-
-%! char(-Code:code) is semidet
-% Match a single character code.
-char(Code, Type) -->
-    [Code],
-    {char_type(Code, Type)}.
-
-%! hex_char(-Code:code) is semidet
-% Match a hexadecimal character code.
-hex_char(Code) -->
-    [Code],
-    {char_type(Code, xdigit(_))}.
-
-%! hex_chars(-Codes:codes) is semidet
-% Match and lowercase a list of one or more hexadecimal character codes.
-hex_chars([Code|Codes]) -->
-    hex_char(Code),
-    hex_chars(Codes).
-hex_chars([Code]) -->
-    hex_char(Code).
-
-%! base_digits(-Digits:codes) is semidet
-% Match a list of one or more digit codes in a base from 2 to 10.
-base_digits([Digit|Digits], Base) -->
-    base_digit(Digit, Base),
-    base_digits(Digits, Base).
-base_digits([Digit], Base) -->
-    base_digit(Digit, Base).
-

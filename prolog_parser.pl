@@ -22,6 +22,13 @@
 parse_file(file(Sections)) -->
     parse_sections(Sections).
 
+parse_atom(atom(lower, Atom)) -->
+    [lower(Atom)].
+parse_atom(atom(quoted, Atom)) -->
+    [quoted(single, Atom)].
+parse_atom(atom(cut)) -->
+    [mark('!')].
+
 parse_body(body(Terms)) -->
     parse_terms(Terms).
 
@@ -67,10 +74,22 @@ parse_comments([Comment|Comments]) -->
 parse_comments([]) -->
     [].
 
+parse_compound(compound(Name, Terms)) -->
+    parse_atom(Name),
+    [mark('(')],
+    parse_terms(Terms),
+    [mark(')')].
+
 parse_head(head(Head)) -->
     parse_compound(Head).
 parse_head(head(Head)) -->
     parse_atom(Head).
+
+parse_marks([Mark|Marks]) -->
+    [mark(Mark)],
+    parse_marks(Marks).
+parse_marks([Mark]) -->
+    [mark(Mark)].
 
 parse_op_infix(operator(Predecence, Associativity, Name)) -->
     [lower(Name)],
@@ -121,11 +140,37 @@ parse_sections([]) -->
 parse_string(string(String)) -->
     [quoted(double, String)].
 
-parse_tail(Tail) -->
+parse_tail(tail(Tail)) -->
     [mark('|')],
     parse_term(Tail).
-parse_tail([]) -->
+parse_tail(tail(empty)) -->
     [].
+
+parse_term(term(Term)) -->
+    parse_atom(Term).
+parse_term(term(Term)) -->
+    parse_value(Term).
+parse_term(term(Term)) -->
+    parse_codestring(Term).
+parse_term(term(Term)) -->
+    parse_string(Term).
+parse_term(term(Term)) -->
+    parse_var(Term).
+parse_term(term(Term)) -->
+    parse_compound(Term).
+parse_term(term(Term)) -->
+    parse_term_in_parens(Term).
+parse_term(term(Term)) -->
+    parse_term_in_braces(Term).
+parse_term(term(Term)) -->
+    parse_term_in_brackets(Term).
+parse_term(term(prefix, operator(Predecence, Associativity, Name), term(Term))) -->
+    parse_op_prefix(operator(Predecence, Associativity, Name)),
+    parse_term(term(Term)).
+parse_term(term(infix, term(Term1), operator(Predecence, Associativity, Name), term(Term2))) -->
+    parse_term(term(Term1)),
+    parse_op_infix(operator(Predecence, Associativity, Name)),
+    parse_term(term(Term2)).
 
 parse_term_in_braces(brace(Terms)) -->
     [mark('{')],
@@ -149,57 +194,6 @@ parse_term_in_parens(paren(Terms)) -->
     parse_terms(Terms),
     [mark(')')].
 
-parse_value(value(Type, Value)) -->
-    [value(Type, Value)].
-
-parse_var(var(Var)) -->
-    [upper(Var)].
-
-parse_compound(compound(Name, Terms)) -->
-    parse_atom(Name),
-    [mark('(')],
-    parse_terms(Terms),
-    [mark(')')].
-
-parse_marks([Mark|Marks]) -->
-    [mark(Mark)],
-    parse_marks(Marks).
-parse_marks([Mark]) -->
-    [mark(Mark)].
-
-parse_term(term(Term)) -->
-    parse_atom(Term).
-parse_term(term(Term)) -->
-    parse_value(Term).
-parse_term(term(Term)) -->
-    parse_codestring(Term).
-parse_term(term(Term)) -->
-    parse_string(Term).
-parse_term(term(Term)) -->
-    parse_compound(Term).
-parse_term(term(Term)) -->
-    parse_var(Term).
-parse_term(term(Term)) -->
-    parse_term_in_parens(Term).
-parse_term(term(Term)) -->
-    parse_term_in_brackets(Term).
-parse_term(term(Term)) -->
-    parse_term_in_braces(Term).
-parse_term(term(prefix, operator(Predecence, Associativity, Name), term(Term))) -->
-    parse_op_prefix(operator(Predecence, Associativity, Name)),
-    parse_term(term(Term)).
-parse_term(term(infix, term(Term1), operator(Predecence, Associativity, Name), term(Term2))) -->
-    parse_term(term(Term1)),
-    parse_op_infix(operator(Predecence, Associativity, Name)),
-    parse_term(term(Term2)).
-
-parse_atom(atom(lower, Atom)) -->
-    [lower(Atom)].
-parse_atom(atom(quoted, Atom)) -->
-    [quoted(single, Atom)].
-parse_atom(atom(cut)) -->
-    [mark('!')].
-
 % todo allow comments inside term lists
 parse_terms([Term|Terms]) -->
     parse_term(Term),
@@ -207,3 +201,9 @@ parse_terms([Term|Terms]) -->
     parse_terms(Terms).
 parse_terms([Term]) -->
     parse_term(Term).
+
+parse_value(value(Type, Value)) -->
+    [value(Type, Value)].
+
+parse_var(var(Var)) -->
+    [upper(Var)].
