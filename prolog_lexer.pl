@@ -244,10 +244,6 @@ token(value(int, NegInt)) -->
         char_code('-', Sign),
         atom_chars(NegInt, [Sign|Digits])
     }.
-token(mark(Mark)) -->
-    char(Punct, punct),
-    !,
-    {atom_chars(Mark, [Punct])}.
 token(lower(Lower)) -->
     char(Code, lower),
     chars(Codes, csym),
@@ -258,3 +254,7 @@ token(upper(Upper)) -->
     chars(Codes, csym),
     !,
     {atom_chars(Upper, [Code|Codes])}.
+token(mark(Mark)) -->
+    char(Punct, punct),
+    !,
+    {atom_chars(Mark, [Punct])}.

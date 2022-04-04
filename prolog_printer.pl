@@ -33,11 +33,24 @@ print_a_term(term(Brace)) :-
     print_term_in_braces(Brace).
 print_a_term(term(Bracket)) :-
     print_term_in_brackets(Bracket).
+print_a_term(term(prefix, Operator, Term)) :-
+    print_term_prefix(Operator, Term).
+print_a_term(term(infix, Term1, Operator, Term2)) :-
+    print_term_infix(Term1, Operator, Term2).
 
 print_atom(atom(lower, Atom)) :-
     write(Atom).
 print_atom(atom(quoted, Atom)) :-
-    writeq(Atom).
+    atom_chars(Atom, [Char|Chars]),
+    char_type(Char, lower),
+    \+ (
+        member(Other, Chars),
+        \+ char_type(Other, csym)
+    ),
+    format("~w", [Atom]),
+    !.
+print_atom(atom(quoted, Atom)) :-
+    format("'~w'", [Atom]).
 print_atom(atom(cut)) :-
     write('!').
 
@@ -142,7 +155,7 @@ print_term_in_brackets(bracket(empty)) :-
 print_term_in_brackets(bracket(Terms, Tail)) :-
     write('['),
     print_terms_spaced(Terms),
-	print_tail(Tail)
+	print_tail(Tail),
     write(']').
 
 print_term_in_parens(paren(Terms)) :-
@@ -155,6 +168,24 @@ print_term_indented(Term, Indent) :-
     (
         print_a_term(Term)
     ).
+
+print_term_infix(Term1, operator(_, _, Name), Term2) :-
+    print_a_term(Term1),
+    format(" ~w ", [Name]),
+    print_a_term(Term2).
+
+print_term_prefix(operator(_, _, '+'), Term) :-
+    write('+'),
+    print_a_term(Term).
+print_term_prefix(operator(_, _, '-'), Term) :-
+    write('-'),
+    print_a_term(Term).
+print_term_prefix(operator(_, _, Name), Term) :-
+    Name \= '+',
+    Name \= '-',
+    write(Name),
+    write(' '),
+    print_a_term(Term).
 
 print_term_spaced(Term) :-
     (
