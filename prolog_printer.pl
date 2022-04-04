@@ -102,6 +102,37 @@ print_compound(compound(Name, ExprList)) :-
     print_expression_list_spaced(ExprList),
     write(')').
 
+print_expression_list_indented([Exprs], Indent) :-
+    print_indent(Indent),
+    print_expressions(Exprs),
+    !.
+print_expression_list_indented([Exprs|ExprList], Indent) :-
+    print_indent(Indent),
+    print_expressions(Exprs),
+    writeln(','),
+	print_expression_list_indented(ExprList, Indent).
+print_expression_list_indented([], _).
+
+print_expression_list_spaced([Exprs]) :-
+    print_expressions(Exprs),
+    !.
+print_expression_list_spaced([Exprs|ExprList]) :-
+    print_expressions(Exprs),
+    write(', '),
+	print_expression_list_spaced(ExprList).
+print_expression_list_spaced([], _).
+
+print_expressions([expression(PrefixOps, Term, PostfixOps, InfixOp)|Exprs]) :-
+    print_ops_prefix(PrefixOps),
+    print_a_term(Term),
+    print_ops_postfix(PostfixOps),
+    print_op_infix(InfixOp),
+    print_expressions(Exprs).
+print_expressions([expression(PrefixOps, Term, PostfixOps)]) :-
+    print_ops_prefix(PrefixOps),
+    print_a_term(Term),
+    print_ops_postfix(PostfixOps).
+
 print_head(head(Compound)) :-
     print_compound(Compound).
 print_head(head(Head)) :-
@@ -113,6 +144,19 @@ print_indent(Indent) :-
     IndentMinus1 is Indent - 1,
     print_indent(IndentMinus1).
 print_indent(0).
+
+print_op_infix(operator(_, _, Name)) :-
+    format(" ~w ", [Name]).
+
+print_ops_postfix([operator(_, _, Name)|PostfixOps]) :-
+    format(" ~w", [Name]),
+    print_ops_postfix(PostfixOps).
+print_ops_postfix([]).
+
+print_ops_prefix([operator(_, _, Name)|PrefixOps]) :-
+    format("~w ", [Name]),
+    print_ops_prefix(PrefixOps).
+print_ops_prefix([]).
 
 print_section(section(Comments, Clauses)) :-
 	print_comments(Comments, 0),
@@ -164,59 +208,15 @@ print_term_infix(Term1, operator(_, _, Name), Term2) :-
     format(" ~w ", [Name]),
     print_a_term(Term2).
 
-print_term_prefix(operator(_, _, Name), Term) :-
-    write(Name),
-    write(' '),
-    print_a_term(Term).
-
 print_term_postfix(operator(_, _, Name), Term) :-
     print_a_term(Term),
     write(' '),
     write(Name).
 
-print_expression_list_indented([Exprs], Indent) :-
-    print_indent(Indent),
-    print_expressions(Exprs),
-    !.
-print_expression_list_indented([Exprs|ExprList], Indent) :-
-    print_indent(Indent),
-    print_expressions(Exprs),
-    writeln(','),
-	print_expression_list_indented(ExprList, Indent).
-print_expression_list_indented([], _).
-
-print_expression_list_spaced([Exprs]) :-
-    print_expressions(Exprs),
-    !.
-print_expression_list_spaced([Exprs|ExprList]) :-
-    print_expressions(Exprs),
-    write(', '),
-	print_expression_list_spaced(ExprList).
-print_expression_list_spaced([], _).
-
-print_expressions([expression(PrefixOps, Term, PostfixOps, InfixOp)|Exprs]) :-
-    print_ops_prefix(PrefixOps),
-    print_a_term(Term),
-    print_ops_postfix(PostfixOps),
-    print_op_infix(InfixOp),
-    print_expressions(Exprs).
-print_expressions([expression(PrefixOps, Term, PostfixOps)]) :-
-    print_ops_prefix(PrefixOps),
-    print_a_term(Term),
-    print_ops_postfix(PostfixOps).
-
-print_op_infix(operator(_, _, Name)) :-
-    format(" ~w ", [Name]).
-
-print_ops_postfix([operator(_, _, Name)|PostfixOps]) :-
-    format(" ~w", [Name]),
-    print_ops_postfix(PostfixOps).
-print_ops_postfix([]).
-
-print_ops_prefix([operator(_, _, Name)|PrefixOps]) :-
-    format("~w ", [Name]),
-    print_ops_prefix(PrefixOps).
-print_ops_prefix([]).
+print_term_prefix(operator(_, _, Name), Term) :-
+    write(Name),
+    write(' '),
+    print_a_term(Term).
 
 print_value(value(_, Value)) :-
 	write(Value).
