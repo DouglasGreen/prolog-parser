@@ -89,15 +89,15 @@ parse_expression_list([Exprs]) -->
     parse_expressions(Exprs).
 
 parse_expressions([expression(PrefixOps, Term, PostfixOps, InfixOp)|Exprs]) -->
-    parse_prefix_ops(PrefixOps),
+    parse_ops_prefix(PrefixOps),
     parse_term(Term),
-    parse_postfix_ops(PostfixOps),
+    parse_ops_postfix(PostfixOps),
     parse_op_infix(InfixOp),
     parse_expressions(Exprs).
 parse_expressions([expression(PrefixOps, Term, PostfixOps)]) -->
-    parse_prefix_ops(PrefixOps),
+    parse_ops_prefix(PrefixOps),
     parse_term(Term),
-    parse_postfix_ops(PostfixOps).
+    parse_ops_postfix(PostfixOps).
 
 parse_head(head(Head)) -->
     parse_compound(Head).
@@ -145,13 +145,13 @@ parse_op_prefix(operator(Predecence, Associativity, Name)) -->
 
 parse_ops_postfix([operator(Predecence, Associativity, Name)|PostfixOps]) -->
     parse_op_postfix(operator(Predecence, Associativity, Name)),
-    parse_postfix_ops(PostfixOps).
+    parse_ops_postfix(PostfixOps).
 parse_ops_postfix([]) -->
     [].
 
 parse_ops_prefix([operator(Predecence, Associativity, Name)|PrefixOps]) -->
     parse_op_prefix(operator(Predecence, Associativity, Name)),
-    parse_prefix_ops(PrefixOps).
+    parse_ops_prefix(PrefixOps).
 parse_ops_prefix([]) -->
     [].
 
