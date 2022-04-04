@@ -1,6 +1,9 @@
 %%
 % <module> Prolog operators
 %
+% @todo Figure out how to parse comma as an operator.
+% operator(1000, 'xfy', ',').
+%
 % @author Douglas S. Green
 % @license GPL
 
@@ -29,7 +32,6 @@ operator(1105, 'xfy', '|').
 operator(1100, 'xfy', ';').
 operator(1050, 'xfy', '->').
 operator(1050, 'xfy', '*->').
-operator(1000, 'xfy', ',').
 operator(990, 'xfx', ':=').
 operator(900, 'fy', '\\+').
 operator(700, 'xfx', '<').

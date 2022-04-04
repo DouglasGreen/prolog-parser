@@ -80,7 +80,7 @@ parse_compound(compound(Name, ExprList)) -->
     parse_expression_list(ExprList),
     [mark(')')].
 
-% todo allow comments inside expr lists
+% @todo allow comments inside expr lists
 parse_expression_list([Exprs|ExprList]) -->
     parse_expressions(Exprs),
     [mark(',')],
@@ -175,9 +175,9 @@ parse_sections([]) -->
 parse_string(string(String)) -->
     [quoted(double, String)].
 
-parse_tail(tail(Tail)) -->
+parse_tail(tail(Exprs)) -->
     [mark('|')],
-    parse_term(Tail).
+    parse_expressions(Exprs).
 parse_tail(tail(empty)) -->
     [].
 

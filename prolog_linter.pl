@@ -11,7 +11,7 @@
 :- use_module(prolog_lexer).
 :- use_module(prolog_operators).
 
-% todo: Check if predicates are already defined by the language
+% @todo Check if predicates are already defined by the language
 
 %! check(+Tokens:list) is det
 % Check the entire list of tokens.
