@@ -80,6 +80,14 @@ parse_compound(compound(Name, ExprList)) -->
     parse_expression_list(ExprList),
     [mark(')')].
 
+% todo allow comments inside expr lists
+parse_expression_list([Exprs|ExprList]) -->
+    parse_expressions(Exprs),
+    [mark(',')],
+    parse_expression_list(ExprList).
+parse_expression_list([Exprs]) -->
+    parse_expressions(Exprs).
+
 parse_expressions([expression(PrefixOps, Term, PostfixOps, InfixOp)|Exprs]) -->
     parse_prefix_ops(PrefixOps),
     parse_term(Term),
@@ -113,17 +121,6 @@ parse_op_infix(operator(Predecence, Associativity, Name)) -->
         memberchk(Associativity, ['xfx', 'xfy', 'yfx'])
     }.
 
-parse_op_prefix(operator(Predecence, Associativity, Name)) -->
-    (
-        [lower(Name)];
-        parse_marks(Marks),
-        {atomic_list_concat(Marks, Name)}
-    ),
-    {
-        operator(Predecence, Associativity, Name),
-        memberchk(Associativity, ['fx', 'fy'])
-    }.
-
 parse_op_postfix(operator(Predecence, Associativity, Name)) -->
     (
         [lower(Name)];
@@ -135,16 +132,27 @@ parse_op_postfix(operator(Predecence, Associativity, Name)) -->
         memberchk(Associativity, ['xf', 'yf'])
     }.
 
-parse_ops_prefix([operator(Predecence, Associativity, Name)|PrefixOps]) -->
-    parse_op_prefix(operator(Predecence, Associativity, Name)),
-    parse_prefix_ops(PrefixOps).
-parse_ops_prefix([]) -->
-    [].
+parse_op_prefix(operator(Predecence, Associativity, Name)) -->
+    (
+        [lower(Name)];
+        parse_marks(Marks),
+        {atomic_list_concat(Marks, Name)}
+    ),
+    {
+        operator(Predecence, Associativity, Name),
+        memberchk(Associativity, ['fx', 'fy'])
+    }.
 
 parse_ops_postfix([operator(Predecence, Associativity, Name)|PostfixOps]) -->
     parse_op_postfix(operator(Predecence, Associativity, Name)),
     parse_postfix_ops(PostfixOps).
 parse_ops_postfix([]) -->
+    [].
+
+parse_ops_prefix([operator(Predecence, Associativity, Name)|PrefixOps]) -->
+    parse_op_prefix(operator(Predecence, Associativity, Name)),
+    parse_prefix_ops(PrefixOps).
+parse_ops_prefix([]) -->
     [].
 
 parse_section(section(Comments, Clauses)) -->
@@ -213,14 +221,6 @@ parse_term_in_parens(paren(ExprList)) -->
     [mark('(')],
     parse_expression_list(ExprList),
     [mark(')')].
-
-% todo allow comments inside expr lists
-parse_expression_list([Exprs|ExprList]) -->
-    parse_expressions(Exprs),
-    [mark(',')],
-    parse_expression_list(ExprList).
-parse_expression_list([Exprs]) -->
-    parse_expressions(Exprs).
 
 parse_value(value(Type, Value)) -->
     [value(Type, Value)].
